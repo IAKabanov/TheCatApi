@@ -1,4 +1,4 @@
-package com.example.thecatapi
+package com.example.thecatapi.iu
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
+import com.example.thecatapi.DownloadContract
+import com.example.thecatapi.R
 import com.example.thecatapi.domain.CatModel
 import com.squareup.picasso.Picasso
 
@@ -50,13 +52,15 @@ class CatAdapterPagination(private val context: Context) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val cat = catList[position]
+        val catId = cat.id
+        val catUrl = cat.url ?: ""
         when (getItemViewType(position)) {
             ITEM -> {
                 val catViewHolder: CatViewHolder = holder as CatViewHolder
-                Picasso.get().load(cat.url).into(catViewHolder.image)
+                Picasso.get().load(catUrl).into(catViewHolder.image)
                 catViewHolder.star.setOnClickListener {
                     if (context is StarContract) {
-                        context.star(cat)
+                        context.star(catId, catUrl)
                     }
                 }
                 catViewHolder.download.setOnClickListener {

@@ -1,5 +1,7 @@
-package com.example.thecatapi
+package com.example.thecatapi.iu
 
+import android.app.Activity
+import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -14,9 +16,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
+import com.example.thecatapi.*
 import com.example.thecatapi.domain.CatModel
 import com.example.thecatapi.domain.CatRest
-import com.example.thecatapi.domain.Repository
+import com.example.thecatapi.usecase.StarUsecase
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,7 +29,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 
-class MainActivity : AppCompatActivity(), StarContract, DownloadContract{
+class MainActivity : AppCompatActivity(), StarContract, DownloadContract {
     companion object {
         const val PAGE_START = 1
         const val TOTAL_PAGES = Int.MAX_VALUE
@@ -39,13 +42,12 @@ class MainActivity : AppCompatActivity(), StarContract, DownloadContract{
     private var isLastPage = false
     private var currentPage = PAGE_START
     private lateinit var progressBar: ProgressBar
-    private lateinit var repo: Repository
+    private val presenter = MainActivityPresenter(this)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        repo = Repository(application)
 
         recyclerView = findViewById(R.id.recyclerView)
         progressBar = findViewById(R.id.progressBar)
@@ -155,18 +157,21 @@ class MainActivity : AppCompatActivity(), StarContract, DownloadContract{
         }
     }
 
-    override fun star(cat: CatModel) {
-        if (cat.url == null) return
-        repo.star(cat, this)
+    fun setStarUsecase(usecase: StarUsecase) {
+        presenter.setStarUsecase(usecase)
     }
 
-    override fun starred(starred: Boolean, cat: CatModel) {
+    override fun star(id: String, catUrl: String) {
+        presenter.starUnstar(id, catUrl)
+    }
+
+    fun starred(starred: Boolean, cat: String) {
         val toBeShown = if (starred) "starred" else "unstarred"
         try {
-            Toast.makeText(this, "${cat.id} $toBeShown", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "$cat $toBeShown", Toast.LENGTH_SHORT).show()
         } catch (ex: NullPointerException) {
             Looper.prepare()
-            Toast.makeText(this, "${cat.id} $toBeShown", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "$cat $toBeShown", Toast.LENGTH_SHORT).show()
         }
     }
 }

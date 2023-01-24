@@ -1,9 +1,7 @@
-package com.example.thecatapi
+package com.example.thecatapi.iu
 
-import android.util.Log
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.thecatapi.GridLayoutManagerWrapper
 
 
 abstract class CatScrollListener(private var layoutManager: GridLayoutManagerWrapper) :

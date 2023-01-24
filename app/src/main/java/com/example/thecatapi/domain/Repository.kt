@@ -1,52 +1,49 @@
 package com.example.thecatapi.domain
 
 import android.app.Application
-import android.os.AsyncTask
-import android.util.Log
-import com.example.thecatapi.GetContract
-import com.example.thecatapi.StarContract
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 class Repository(application: Application) {
     private val database: CatDatabase = CatDatabase.getInstance(application)
-    val catDao = database.catDao()
+    private val catDao = database.catDao()
 
     fun insert(cat: CatModel) {
-        GlobalScope.launch {
-            val listCats = catDao.findId(cat)
-            if (listCats.isNotEmpty()) {
-                catDao.insert(cat)
-            }
+        val listCats = catDao.findId(cat)
+        if (listCats.isEmpty()) {
+            catDao.insert(cat)
         }
     }
+
+    fun insert(catId: String, catUrl: String) {
+        insert(createCatByIdAndUrl(catId, catUrl))
+    }
+
 
     fun delete(cat: CatModel) {
-        GlobalScope.launch {
-            val listCats = catDao.findId(cat)
-            for (catToBeDeleted in listCats) {
-                catDao.delete(catToBeDeleted)
-            }
+        val listCats = catDao.findId(cat)
+        for (catToBeDeleted in listCats) {
+            catDao.delete(catToBeDeleted)
         }
     }
 
-    fun getAllTheCats(contract: GetContract) {
-        GlobalScope.launch {
-            contract.onReceived(catDao.getAllCats())
-        }
+    fun delete(catId: String? = null, catUrl: String) {
+        delete(createCatByIdAndUrl(catId, catUrl))
     }
 
-    fun star(cat: CatModel, contract: StarContract) {
-        GlobalScope.launch {
-            val listCats = catDao.findId(cat)
-            if (listCats.isNotEmpty()) {
-                catDao.delete(cat)
-                contract.starred(false, cat)
-            } else {
-                catDao.insert(cat)
-                contract.starred(true, cat)
-            }
-        }
+    fun getAllTheCats(): List<CatModel> {
+        return catDao.getAllCats()
+    }
+
+    fun findCat(url: String): List<CatModel> {
+        val cat = CatModel()
+        cat.url = url
+        return catDao.findId(cat)
+    }
+
+    private fun createCatByIdAndUrl(catId: String? = null, catUrl: String): CatModel {
+        val cat = CatModel()
+        val id = catId ?: ""
+        cat.id = id
+        cat.url = catUrl
+        return cat
     }
 }

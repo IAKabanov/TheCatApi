@@ -1,8 +1,9 @@
-package com.example.thecatapi
+package com.example.thecatapi.iu
 
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Looper
 import android.provider.MediaStore
 import android.widget.Button
 import android.widget.ImageView
@@ -11,24 +12,24 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
+import com.example.thecatapi.*
 import com.example.thecatapi.domain.CatModel
-import com.example.thecatapi.domain.Repository
+import com.example.thecatapi.usecase.LoadingUsecase
+import com.example.thecatapi.usecase.StarUsecase
 import java.io.File
 import java.io.FileOutputStream
 
 
-class StarredActivity : AppCompatActivity(), StarContract, DownloadContract, GetContract {
+class StarredActivity : AppCompatActivity(), StarContract, DownloadContract {
     private lateinit var recyclerView: RecyclerView
     private lateinit var catAdapter: CatAdapter
     private lateinit var tvEmpty: TextView
     private lateinit var goToAll: Button
-    private lateinit var repo: Repository
+    private val presenter = StarredActivityPresenter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_starred)
-
-        repo = Repository(application)
 
         recyclerView = findViewById(R.id.recyclerViewStarred)
         tvEmpty = findViewById(R.id.tvEmptyList)
@@ -44,24 +45,14 @@ class StarredActivity : AppCompatActivity(), StarContract, DownloadContract, Get
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = catAdapter
 
-        repo.getAllTheCats(this)
+        presenter.getAllTheCats()
     }
 
     private fun loadStarred(allCats: List<CatModel>) {
         catAdapter.addAll(allCats)
     }
 
-    override fun star(cat: CatModel) {
-        if (cat.url == null) return
-        repo.star(cat, this)
-    }
-
-    override fun starred(starred: Boolean, cat: CatModel) {
-        val toBeShown = if (starred) "starred" else "unstarred"
-        Toast.makeText(this, "${cat.id} $toBeShown", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onReceived(allCats: List<CatModel>) {
+    fun loaded(allCats: List<CatModel>) {
         loadStarred(allCats)
     }
 
@@ -82,6 +73,28 @@ class StarredActivity : AppCompatActivity(), StarContract, DownloadContract, Get
             Toast.makeText(this, "Saved to ${file.absolutePath}", Toast.LENGTH_SHORT).show()
         } catch (ex: Exception) {
             ex.message
+        }
+    }
+
+    fun setLoadingUsecase(usecase: LoadingUsecase) {
+        presenter.setLoadingUsecase(usecase)
+    }
+
+    fun setStarUsecase(usecase: StarUsecase) {
+        presenter.setStarUsecase(usecase)
+    }
+
+    override fun star(id: String, catUrl: String) {
+        presenter.starUnstar(id, catUrl)
+    }
+
+    fun starred(starred: Boolean, cat: String) {
+        val toBeShown = if (starred) "starred" else "unstarred"
+        try {
+            Toast.makeText(this, "$cat $toBeShown", Toast.LENGTH_SHORT).show()
+        } catch (ex: NullPointerException) {
+            Looper.prepare()
+            Toast.makeText(this, "$cat $toBeShown", Toast.LENGTH_SHORT).show()
         }
     }
 
