@@ -1,9 +1,9 @@
 package com.example.thecatapi.usecase
 
-import com.example.thecatapi.domain.CatModel
-import com.example.thecatapi.domain.Repository
+import com.example.thecatapi.database.CatModel
+import com.example.thecatapi.database.Repository
 
-class DBUsecase(private val repository: Repository) : StarUsecase, LoadingUsecase {
+class DBUsecase(private val repository: Repository) : Starrer, Loader {
     override fun starUnstar(id: String, url: String): Boolean {
         val listCat = repository.findCat(url)
         return if (listCat.isNotEmpty()) {

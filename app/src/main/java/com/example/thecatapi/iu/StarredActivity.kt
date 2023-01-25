@@ -1,10 +1,8 @@
 package com.example.thecatapi.iu
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Looper
-import android.provider.MediaStore
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,11 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import com.example.thecatapi.*
-import com.example.thecatapi.domain.CatModel
-import com.example.thecatapi.usecase.LoadingUsecase
-import com.example.thecatapi.usecase.StarUsecase
-import java.io.File
-import java.io.FileOutputStream
+import com.example.thecatapi.database.CatModel
+import com.example.thecatapi.usecase.Downloader
+import com.example.thecatapi.usecase.Loader
+import com.example.thecatapi.usecase.Starrer
 
 
 class StarredActivity : AppCompatActivity(), StarContract, DownloadContract {
@@ -56,36 +53,28 @@ class StarredActivity : AppCompatActivity(), StarContract, DownloadContract {
         loadStarred(allCats)
     }
 
-    override fun download(iv: ImageView, cat: CatModel) {
-        try {
-            val file = File("/sdcard/Download", cat.id + ".jpg")
-            val fOut = FileOutputStream(file)
-            val bitmap: Bitmap = iv.drawable.toBitmap()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
-            fOut.flush()
-            fOut.close()
-            MediaStore.Images.Media.insertImage(
-                contentResolver,
-                file.absolutePath,
-                file.name,
-                file.name
-            )
-            Toast.makeText(this, "Saved to ${file.absolutePath}", Toast.LENGTH_SHORT).show()
-        } catch (ex: Exception) {
-            ex.message
-        }
+    fun downloaded(where: String) {
+        Toast.makeText(this, "Saved to $where", Toast.LENGTH_SHORT).show()
     }
 
-    fun setLoadingUsecase(usecase: LoadingUsecase) {
+    override fun download(iv: ImageView, cat: CatModel) {
+        presenter.download(iv.drawable.toBitmap(), cat.id, contentResolver)
+    }
+
+    fun setLoadingUsecase(usecase: Loader) {
         presenter.setLoadingUsecase(usecase)
     }
 
-    fun setStarUsecase(usecase: StarUsecase) {
+    fun setStarUsecase(usecase: Starrer) {
         presenter.setStarUsecase(usecase)
     }
 
-    override fun star(id: String, catUrl: String) {
-        presenter.starUnstar(id, catUrl)
+    fun setDownloadUsecase(usecase: Downloader) {
+        presenter.setDownloadUsecase(usecase)
+    }
+
+    override fun star(catId: String, catUrl: String) {
+        presenter.starUnstar(catId, catUrl)
     }
 
     fun starred(starred: Boolean, cat: String) {
@@ -97,5 +86,4 @@ class StarredActivity : AppCompatActivity(), StarContract, DownloadContract {
             Toast.makeText(this, "$cat $toBeShown", Toast.LENGTH_SHORT).show()
         }
     }
-
 }

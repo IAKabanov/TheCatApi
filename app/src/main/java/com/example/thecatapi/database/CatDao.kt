@@ -1,8 +1,10 @@
-package com.example.thecatapi.domain
+package com.example.thecatapi.database
 
 import androidx.room.*
 
-
+/**
+ * Interface needed for Room lib.
+ */
 @Dao
 interface CatDao {
     @Insert

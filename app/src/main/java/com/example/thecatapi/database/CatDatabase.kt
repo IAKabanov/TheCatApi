@@ -1,13 +1,16 @@
-package com.example.thecatapi.domain
+package com.example.thecatapi.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
 
+/**
+ * Here is Room lib database created.
+ */
 @Database(entities = [CatModel::class], version = 1)
 abstract class CatDatabase : RoomDatabase() {
-    companion object{
+    companion object {
         @Volatile
         private var INSTANCE: CatDatabase? = null
         private const val DATABASE_NAME = "CatDatabase"

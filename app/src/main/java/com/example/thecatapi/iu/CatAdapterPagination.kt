@@ -7,11 +7,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
-import com.example.thecatapi.DownloadContract
 import com.example.thecatapi.R
-import com.example.thecatapi.domain.CatModel
+import com.example.thecatapi.database.CatModel
 import com.squareup.picasso.Picasso
-
 
 class CatAdapterPagination(private val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -46,7 +44,6 @@ class CatAdapterPagination(private val context: Context) :
                 viewHolder = LoadingViewHolder(viewLoading)
             }
         }
-
         return viewHolder!!
     }
 
@@ -111,7 +108,7 @@ class CatAdapterPagination(private val context: Context) :
         }
     }
 
-    fun getItem(position: Int) : CatModel {
+    fun getItem(position: Int): CatModel {
         return catList[position]
     }
 }

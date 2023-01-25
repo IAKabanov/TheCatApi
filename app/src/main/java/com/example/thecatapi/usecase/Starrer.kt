@@ -1,9 +1,11 @@
 package com.example.thecatapi.usecase
 
-interface StarUsecase {
+interface Starrer {
     /**
      * That method suppose to add/delete an object in database.
-     * @param url a String, that represents an object.
+     * @param id is an id of the cat.
+     * @param url is a link to the cat image.
+     * @return true if a cat is starred, false otherwise
      */
     fun starUnstar(id: String, url: String): Boolean
 }
